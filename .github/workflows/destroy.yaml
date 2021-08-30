@@ -1,0 +1,38 @@
+name: Destroy infrastructure
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: 0 20 * * * #Schedule destroy every night at eight
+
+jobs:
+  terraform:
+    name: Run terraform apply -destroy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    env:
+      GOOGLE_CREDENTIALS: ${{secrets.GOOGLE_CREDENTIALS}}
+      GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -destroy -out=gcp.tfplan
+          
+      - name: Terraform apply
+        run: |
+          terraform apply -destroy -auto-approve gcp.tfplan
