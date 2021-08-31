@@ -12,7 +12,7 @@ resource "google_container_cluster" "demo" {
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "gke-node-pool"
   cluster    = google_container_cluster.demo.name
-  node_count = 3
+  node_count = 4
 
   node_config {
     preemptible  = true
